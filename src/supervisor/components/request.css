@@ -1,0 +1,8 @@
+.custom-datatable table tr td:nth-child(2) {
+  /* Apply styles specifically to the second column */
+  /* Example styles: */
+  background-color: #083e49; /* Background color cyan-700 */
+  color: #ffffff; /* Text color white */
+  font-size: 1.125rem; /* Text size 1.125rem (18px assuming 16px base) */
+  font-weight: 300; /* Font weight light */
+}
