@@ -5,12 +5,17 @@ import Breadcrumb from "../../components/Breadcrumb";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { FaFilePdf, FaX } from "react-icons/fa6";
+import "react-toastify/dist/ReactToastify.css";
+import { showToast } from "../../components/toastUtils";
 
 const TutorProfileMgt = ({ match }) => {
   const [tutor, setTutor] = useState(null);
-  const [rank, setRank] = useState(1);
+  const [rank, setRank] = useState(() => {
+    const storedRank = localStorage.getItem("rank");
+    return storedRank ? parseInt(storedRank, 10) : 1; // Use a default value if not present
+  });
   const { id } = useParams(); // Access the tutorId parameter from the URL
-  const gradeLevels = [
+  const gradeLevel = [
     "Kindergarten",
     "Elementary",
     "Middle School",
@@ -38,6 +43,12 @@ const TutorProfileMgt = ({ match }) => {
     }
   }, [id]);
 
+  // Update localStorage whenever rank changes
+  useEffect(() => {
+    localStorage.setItem("rank", rank.toString());
+  }, [rank]);
+
+  // Handler for rank change
   const handleRankChange = (event) => {
     const selectedRank = parseInt(event.target.value, 10);
     setRank(selectedRank);
@@ -46,7 +57,7 @@ const TutorProfileMgt = ({ match }) => {
   // Function to accept action for a tutor
   const acceptAction = async (id) => {
     try {
-      await axios.put(`/api/tutors/tutor-requests/${id}/accept`);
+      await axios.put(`/api/tutor/tutor-requests/${id}/accept`);
       // Refresh tutors after successful action
       // fetchTutors();
       // const updatedTutors = tutors.map((tutor) => {
@@ -64,6 +75,8 @@ const TutorProfileMgt = ({ match }) => {
         return tutor;
       });
       setTutor(updatedRequests);
+      showToast("Tutor Request is Accepted Successfully", "success");
+      showToast("Email is Sent", "info");
     } catch (error) {
       console.error("Error accepting action:", error);
     }
@@ -72,7 +85,7 @@ const TutorProfileMgt = ({ match }) => {
   // Function to deny action for a tutor
   const denyAction = async (id) => {
     try {
-      await axios.put(`/api/tutors/tutor-requests/${id}/deny`);
+      await axios.put(`/api/tutor/tutor-requests/${id}/deny`);
       const updatedRequests = tutor.map((tutor) => {
         if (tutor._id === id) {
           return { ...tutor, status: "Denied" };
@@ -80,45 +93,90 @@ const TutorProfileMgt = ({ match }) => {
         return tutor;
       });
       setTutor(updatedRequests);
+      showToast("Tutor Request is Denied", "info");
     } catch (error) {
       console.error("Error denying action:", error);
     }
   };
 
-  const handleGradeLevelChange = async (event) => {
-    const { value } = event.target;
+  const handleGradeLevelChange = (event) => {
+    const { value, checked } = event.target;
 
+    // Update the local state first
+    setTutor((prevTutor) => {
+      const updatedGradeLevels = prevTutor.gradeLevel.includes(value)
+        ? prevTutor.gradeLevel.filter((level) => level !== value)
+        : [...prevTutor.gradeLevel, value];
+
+      // Set the updatedGradeLevels state
+      setUpdatedGradeLevels(updatedGradeLevels);
+
+      return { ...prevTutor, gradeLevel: updatedGradeLevels };
+    });
+  };
+
+  const saveUpdates = async () => {
+    // Make an API call to update both rank and gradeLevels
     try {
-      // Update the local state first
-      setTutor((prevTutor) => {
-        const updatedGradeLevels = prevTutor.gradeLevel.includes(value)
-          ? prevTutor.gradeLevel.filter((level) => level !== value)
-          : [...prevTutor.gradeLevel, value];
-
-        // Set the updatedGradeLevels state
-        setUpdatedGradeLevels(updatedGradeLevels);
-
-        return { ...prevTutor, gradeLevel: updatedGradeLevels };
-      });
-
-      // Make API call to update the tutor's data in the database
-      const response = await fetch(`/api/updateTutorGradeLevel/${tutor._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ gradeLevel: updatedGradeLevels }),
-      });
-
-      if (!response.ok) {
-        console.error("Failed to update tutor grade level in the database");
-        // Optionally, you can roll back the local state change on failure
+      const response = await fetch(
+        `/api/tutor/updateTutorProfile/${tutor._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ rank, gradeLevel: updatedGradeLevels }),
+        }
+      );
+showToast("Tutor Profile is Updated Successfully", "success");
+      if (response.ok) {
+        // Handle successful update
+        console.log("Rank and gradeLevels updated successfully");
+        
+      } else {
+        // Handle error
+        console.error("Failed to update rank and gradeLevels");
       }
     } catch (error) {
-      console.error("Error updating tutor grade level:", error);
-      // Optionally, you can roll back the local state change on failure
+      console.error("Error updating rank and gradeLevels:", error);
+
+      showToast("Tutor Profile is not Updated ", "error");
     }
   };
+  // const handleGradeLevelChange = async (event) => {
+  //   const { value } = event.target;
+
+  //   try {
+  //     // Update the local state first
+  //     setTutor((prevTutor) => {
+  //       const updatedGradeLevels = prevTutor.gradeLevel.includes(value)
+  //         ? prevTutor.gradeLevel.filter((level) => level !== value)
+  //         : [...prevTutor.gradeLevel, value];
+
+  //       // Set the updatedGradeLevels state
+  //       setUpdatedGradeLevels(updatedGradeLevels);
+
+  //       return { ...prevTutor, gradeLevel: updatedGradeLevels };
+  //     });
+
+  //     // Make API call to update the tutor's data in the database
+  //     const response = await fetch(`/api/updateTutorGradeLevel/${tutor._id}`, {
+  //       method: "PUT",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ gradeLevel: updatedGradeLevels }),
+  //     });
+
+  //     if (!response.ok) {
+  //       console.error("Failed to update tutor grade level in the database");
+  //       // Optionally, you can roll back the local state change on failure
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating tutor grade level:", error);
+  //     // Optionally, you can roll back the local state change on failure
+  //   }
+  // };
 
   return (
     <>
@@ -167,11 +225,11 @@ const TutorProfileMgt = ({ match }) => {
                         className="w-72 h-72 mt-10   object-cover rounded-xl bg-slate-200 p-2 "
                       />
                     </div>
-                    <div className="flex  justify-between p-3 mt-3">
+                    <div className="flex  justify-center p-3 mt-3">
                       <button className="text-4xl text-center text-green-700">
                         <FaCheckCircle />
                       </button>
-                      <button className="text-4xl text-center text-red-700">
+                      <button className="ml-3 text-4xl text-center text-red-700">
                         <FaX />
                       </button>
                     </div>
@@ -246,7 +304,7 @@ const TutorProfileMgt = ({ match }) => {
                           className="w-full h-[40px] mt-3 text-lg font-light rounded-xl border border-cyan-900 "
                         />
                       </div>
-                      <div className="mt-6">
+                      {/* <div className="mt-6">
                         <label className="text-xl font-light">
                           Price per Hour:
                         </label>
@@ -255,8 +313,8 @@ const TutorProfileMgt = ({ match }) => {
                           value={tutor.priceRate}
                           className="w-full h-[40px] mt-3  text-lg font-light rounded-xl border border-cyan-900 "
                         />
-                      </div>
-                      <div className="flex flex-row m-3 gap-4">
+                      </div> */}
+                      <div className="flex flex-row m-3 gap-4 mt-6">
                         <label className="text-xl font-light">CV:</label>
                         {/* Display the CV here */}
                         {/* <embed
@@ -278,7 +336,7 @@ const TutorProfileMgt = ({ match }) => {
                         </a>
                       </div>
 
-                      <div>
+                      <div className="mt-6">
                         <label htmlFor="rank" className="text-xl font-light">
                           Rank:
                         </label>
@@ -307,13 +365,17 @@ const TutorProfileMgt = ({ match }) => {
                           Tutoring Grade Level:
                         </label>
 
-                        {gradeLevels.map((level) => (
+                        {gradeLevel.map((level) => (
                           <div key={level} className="flex mt-3 items-center">
                             <input
                               type="checkbox"
                               id={level}
                               value={level}
-                              checked={tutor.gradeLevel.includes(level)}
+                              checked={
+                                tutor &&
+                                tutor.gradeLevel &&
+                                tutor.gradeLevel.includes(level)
+                              }
                               onChange={handleGradeLevelChange}
                             />
                             <label
@@ -326,12 +388,18 @@ const TutorProfileMgt = ({ match }) => {
                         ))}
                       </div>
                     </div>
+                    <div className="flex justify-center mb-6">
+                      <button
+                        onClick={saveUpdates}
+                        className="text-2xl font-light p-3 border border-teal-500 bg-cyan-700 text-white rounded-full transition-transform transform hover:scale-105 focus:outline-none focus:ring focus:border-teal-300"
+                      >
+                        Save Updates
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             )}
-
-            <div></div>
           </div>
         </div>
       </div>

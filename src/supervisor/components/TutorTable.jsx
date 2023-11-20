@@ -124,12 +124,12 @@ const TutorTable = () => {
                     <th className="p-3 text-sm font-light tracking-wide text-left">
                       Phone Number
                     </th>
-                    <th className="p-3 text-sm font-light tracking-wide text-center">
+                    <th className="p-3 text-sm font-light tracking-wide text-left">
                       Status
                     </th>
-                    <th className="p-3 text-sm font-light tracking-wide text-center">
+                    {/* <th className="p-3 text-sm font-light tracking-wide text-center">
                       Action
-                    </th>
+                    </th> */}
                   </tr>
                 </thead>
                 <tbody>
@@ -170,7 +170,7 @@ const TutorTable = () => {
                         {tutor.status}
                         {/* Replace with actual action status */}
                       </td>
-                      <td>
+                      {/* <td>
                         <div className="flex justify-around p-1">
                           <button
                             onClick={() => acceptAction(tutor._id)}
@@ -185,7 +185,7 @@ const TutorTable = () => {
                             Deny
                           </button>
                         </div>
-                      </td>
+                      </td> */}
                     </tr>
                   ))}
                 </tbody>
