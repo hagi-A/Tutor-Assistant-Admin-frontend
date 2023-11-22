@@ -1,14 +1,23 @@
 import React, { useEffect, useState } from "react";
 import SupSidebar from "../pages/SupSidebar";
-import { FaCheckCircle, FaEnvelope, FaRegBell, FaSearch } from "react-icons/fa";
+import {
+  FaCheckCircle,
+  FaEnvelope,
+  FaRegBell,
+  FaSearch,
+  FaTrash,
+} from "react-icons/fa";
 import Breadcrumb from "../../components/Breadcrumb";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { FaFilePdf, FaX } from "react-icons/fa6";
 import "react-toastify/dist/ReactToastify.css";
 import { showToast } from "../../components/toastUtils";
+import DenyModal from "../../components/DenyModal";
+import { toBeRequired } from "@testing-library/jest-dom/matchers";
 
 const TutorProfileMgt = ({ match }) => {
+  const [open, setOpen] = useState(false);
   const [tutor, setTutor] = useState(null);
   const [rank, setRank] = useState(() => {
     const storedRank = localStorage.getItem("rank");
@@ -23,6 +32,17 @@ const TutorProfileMgt = ({ match }) => {
     "College",
   ];
   const [updatedGradeLevels, setUpdatedGradeLevels] = useState([]);
+  const [denialReasons, setDenialReasons] = useState({
+    credentialsError: false,
+    missingAttachment: false,
+    lowGrade: false,
+    // Add more denial reasons as needed
+  });
+  // State to track if the tutor is blacklisted
+  const [isBlacklisted, setIsBlacklisted] = useState(false);
+
+  // State to track if the overlay should be shown
+  const [showOverlay, setShowOverlay] = useState(false);
 
   //   console.log(id);
   useEffect(() => {
@@ -83,21 +103,43 @@ const TutorProfileMgt = ({ match }) => {
   };
 
   // Function to deny action for a tutor
-  const denyAction = async (id) => {
+  const denyAction = async (id, denialReasons) => {
     try {
-      await axios.put(`/api/tutor/tutor-requests/${id}/deny`);
-      const updatedRequests = tutor.map((tutor) => {
-        if (tutor._id === id) {
-          return { ...tutor, status: "Denied" };
-        }
-        return tutor;
+       await axios.put(`/api/tutor/tutor-requests/${id}/deny`, {
+        denialReasons,
       });
-      setTutor(updatedRequests);
-      showToast("Tutor Request is Denied", "info");
+      // Update the local state if the backend operation is successful
+      
+        const updatedRequests = tutor.map((tutor) => {
+          if (tutor._id === id) {
+            return { ...tutor, status: "Denied" };
+          }
+          return tutor;
+        });
+        setTutor(updatedRequests);
+        showToast("Tutor Request is Denied", "info");
+        // // Close the modal
+        // setOpen(true);
+        // Set the tutor as blacklisted
+        setIsBlacklisted(true);
+
+        // // Show the overlay
+        // setShowOverlay(true);
+     
     } catch (error) {
       console.error("Error denying action:", error);
+      showToast("Error denying tutor request", "error");
     }
   };
+
+  useEffect(() => {
+    // Check local storage if the tutor is blacklisted
+    const isBlacklistedFromStorage = localStorage.getItem("isBlacklisted");
+    if (isBlacklistedFromStorage) {
+      setIsBlacklisted(true);
+      setShowOverlay(true);
+    }
+  }, []);
 
   const handleGradeLevelChange = (event) => {
     const { value, checked } = event.target;
@@ -128,11 +170,10 @@ const TutorProfileMgt = ({ match }) => {
           body: JSON.stringify({ rank, gradeLevel: updatedGradeLevels }),
         }
       );
-showToast("Tutor Profile is Updated Successfully", "success");
+      showToast("Tutor Profile is Updated Successfully", "success");
       if (response.ok) {
         // Handle successful update
         console.log("Rank and gradeLevels updated successfully");
-        
       } else {
         // Handle error
         console.error("Failed to update rank and gradeLevels");
@@ -242,12 +283,89 @@ showToast("Tutor Profile is Updated Successfully", "success");
                       Accept
                     </button>
                     <button
-                      onClick={() => denyAction(tutor._id)}
+                      // onClick={() => denyAction(tutor._id)}
+                      onClick={() => setOpen(true)}
                       className="ml-2 p-2 rounded-xl border border-red-500 hover:bg-red-500 hover:text-white text-black "
                     >
                       Deny
                     </button>
                   </div>
+                  <DenyModal open={open} onClose={() => setOpen(false)}>
+                    <div className="text-center w-56">
+                      <FaTrash size={56} className="mx-auto text-red-500" />
+                      <div className="mx-auto my-4 w-48">
+                        <h3 className="text-lg font-black text-gray-800">
+                          Deny Tutor
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          Enter reason for not accepting {tutor.firstName}
+                        </p>
+                      </div>
+                      <div className="flex flex-col space-y-2">
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={denialReasons.credentialsError}
+                            onChange={(e) =>
+                              setDenialReasons((prev) => ({
+                                ...prev,
+                                credentialsError: e.target.checked,
+                              }))
+                            }
+                          />
+                          Credentials Error
+                        </label>
+
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={denialReasons.missingAttachment}
+                            onChange={(e) =>
+                              setDenialReasons((prev) => ({
+                                ...prev,
+                                missingAttachment: e.target.checked,
+                              }))
+                            }
+                          />
+                          Missing Attachment
+                        </label>
+
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={denialReasons.lowGrade}
+                            onChange={(e) =>
+                              setDenialReasons((prev) => ({
+                                ...prev,
+                                lowGrade: e.target.checked,
+                              }))
+                            }
+                          />
+                          Low Grade
+                        </label>
+                      </div>
+                      <div className="flex gap-4">
+                        <button
+                          className="btn btn-danger w-full"
+                          onClick={() => denyAction(tutor._id)}
+                        >
+                          Deny
+                        </button>
+                        <button
+                          className="btn btn-light w-full"
+                          onClick={() => setOpen(false)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </DenyModal>
+                  {/* Overlay for blacklisted tutors */}
+                  {showOverlay && (
+                    <div className="overlay bg-black bg-opacity-50">
+                      <p className="blacklisted-text text-red-700 text-3xl">Blacklisted</p>
+                    </div>
+                  )}
                   {/* <div className=" w-full bg-cyan-300 h-[30%] mt-3 rounded-lg">
                   row 2
                 </div> */}

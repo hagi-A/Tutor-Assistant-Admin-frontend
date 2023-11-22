@@ -166,9 +166,22 @@ const TutorTable = () => {
                           {tutor.selectedCVs}
                         </a>
                       </td> */}
-                      <td className="p-3 text-sm text-gray-500 whitespace-nowrap">
-                        {tutor.status}
-                        {/* Replace with actual action status */}
+                      <td
+                        className={`p-3 text-sm whitespace-nowrap text-center `}
+                      >
+                        <span
+                          className={`p-1.5 text-xs font-medium uppercase tracking-wider ${
+                            tutor.status === "Accepted"
+                              ? "bg-green-700 text-white bg-opacity-50 rounded-full"
+                              : tutor.status === "Blacklisted"
+                              ? "bg-red-700 text-white bg-opacity-50 rounded-full"
+                              : tutor.status === "Pending"
+                              ? "bg-blue-700 text-white bg-opacity-50 rounded-full"
+                              : "" // Default or additional cases
+                          }`}
+                        >
+                          {tutor.status}
+                        </span>
                       </td>
                       {/* <td>
                         <div className="flex justify-around p-1">
