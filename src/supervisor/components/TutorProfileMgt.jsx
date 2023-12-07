@@ -36,8 +36,8 @@ const TutorProfileMgt = ({ match }) => {
     credentialsError: false,
     missingAttachment: false,
     lowGrade: false,
-    // Add more denial reasons as needed
   });
+
   // State to track if the tutor is blacklisted
   const [isBlacklisted, setIsBlacklisted] = useState(false);
 
@@ -105,27 +105,27 @@ const TutorProfileMgt = ({ match }) => {
   // Function to deny action for a tutor
   const denyAction = async (id, denialReasons) => {
     try {
-       await axios.put(`/api/tutor/tutor-requests/${id}/deny`, {
+      await axios.put(`/api/tutor/tutor-requests/${id}/deny`, {
         denialReasons,
       });
       // Update the local state if the backend operation is successful
-      
-        const updatedRequests = tutor.map((tutor) => {
-          if (tutor._id === id) {
-            return { ...tutor, status: "Denied" };
-          }
-          return tutor;
-        });
-        setTutor(updatedRequests);
-        showToast("Tutor Request is Denied", "info");
-        // // Close the modal
-        // setOpen(true);
-        // Set the tutor as blacklisted
-        setIsBlacklisted(true);
+      console.log(denialReasons);
+      const updatedRequests = tutor.map((tutor) => {
+        if (tutor._id === id) {
+          return { ...tutor, status: "Denied", denialReasons };
+        }
+        return tutor;
+        showToast("Tutor Request is Denied insideeeeee", "info");
+      });
+      setTutor(updatedRequests);
+      showToast("Tutor Request is Denied", "info");
+      // // Close the modal
+      // setOpen(true);
+      // Set the tutor as blacklisted
+      setIsBlacklisted(true);
 
-        // // Show the overlay
-        // setShowOverlay(true);
-     
+      // // Show the overlay
+      // setShowOverlay(true);
     } catch (error) {
       console.error("Error denying action:", error);
       showToast("Error denying tutor request", "error");
@@ -142,10 +142,15 @@ const TutorProfileMgt = ({ match }) => {
   }, []);
 
   const handleGradeLevelChange = (event) => {
-    const { value, checked } = event.target;
+    const { value } = event.target;
 
     // Update the local state first
     setTutor((prevTutor) => {
+      console.log("Prev Tutor:", prevTutor);
+      // if (!prevTutor || !prevTutor.gradeLevel) {
+      //   // Handle the case when prevTutor or prevTutor.gradeLevel is undefined
+      //   return prevTutor;
+      // }
       const updatedGradeLevels = prevTutor.gradeLevel.includes(value)
         ? prevTutor.gradeLevel.filter((level) => level !== value)
         : [...prevTutor.gradeLevel, value];
@@ -155,6 +160,9 @@ const TutorProfileMgt = ({ match }) => {
 
       return { ...prevTutor, gradeLevel: updatedGradeLevels };
     });
+  };
+  const handleCheckboxChange = (reason) => {
+    setDenialReasons((prev) => ({ ...prev, [reason]: !prev[reason] }));
   };
 
   const saveUpdates = async () => {
@@ -170,10 +178,11 @@ const TutorProfileMgt = ({ match }) => {
           body: JSON.stringify({ rank, gradeLevel: updatedGradeLevels }),
         }
       );
-      showToast("Tutor Profile is Updated Successfully", "success");
+      
       if (response.ok) {
         // Handle successful update
         console.log("Rank and gradeLevels updated successfully");
+        showToast("Tutor Profile is Updated Successfully", "success");
       } else {
         // Handle error
         console.error("Failed to update rank and gradeLevels");
@@ -266,14 +275,14 @@ const TutorProfileMgt = ({ match }) => {
                         className="w-72 h-72 mt-10   object-cover rounded-xl bg-slate-200 p-2 "
                       />
                     </div>
-                    <div className="flex  justify-center p-3 mt-3">
+                    {/* <div className="flex  justify-center p-3 mt-3">
                       <button className="text-4xl text-center text-green-700">
                         <FaCheckCircle />
                       </button>
                       <button className="ml-3 text-4xl text-center text-red-700">
                         <FaX />
                       </button>
-                    </div>
+                    </div> */}
                   </div>
                   <div className="flex mt-7 ml-36 gap-4">
                     <button
@@ -297,14 +306,19 @@ const TutorProfileMgt = ({ match }) => {
                         <h3 className="text-lg font-black text-gray-800">
                           Deny Tutor
                         </h3>
-                        <p className="text-sm text-gray-500">
-                          Enter reason for not accepting {tutor.firstName}
+                        <p className=" text-gray-500">
+                          Enter reason for not accepting{" "}
+                          <span className="text-md text-red-600 ">
+                            {tutor.firstName}
+                          </span>
                         </p>
                       </div>
                       <div className="flex flex-col space-y-2">
-                        <label>
+                        <div className="flex items-center ml-3">
                           <input
                             type="checkbox"
+                            id="credentialsError" // Set id to the specific reason
+                            value="credentialsError"
                             checked={denialReasons.credentialsError}
                             onChange={(e) =>
                               setDenialReasons((prev) => ({
@@ -313,12 +327,13 @@ const TutorProfileMgt = ({ match }) => {
                               }))
                             }
                           />
-                          Credentials Error
-                        </label>
-
-                        <label>
+                          <label className="ml-3">Credentials Error</label>
+                        </div>
+                        <div className="flex items-center ml-3">
                           <input
                             type="checkbox"
+                            id="missingAttachment"
+                            value="missingAttachment"
                             checked={denialReasons.missingAttachment}
                             onChange={(e) =>
                               setDenialReasons((prev) => ({
@@ -327,32 +342,34 @@ const TutorProfileMgt = ({ match }) => {
                               }))
                             }
                           />
-                          Missing Attachment
-                        </label>
-
-                        <label>
+                          <label className="ml-3">Missing Attachment</label>
+                        </div>
+                        <div className="flex items-center ml-3">
                           <input
                             type="checkbox"
+                            id="lowGrade"
+                            value="lowGrade"
                             checked={denialReasons.lowGrade}
                             onChange={(e) =>
                               setDenialReasons((prev) => ({
                                 ...prev,
                                 lowGrade: e.target.checked,
                               }))
+
                             }
                           />
-                          Low Grade
-                        </label>
+                          <label className="ml-3">Low Grade</label>
+                        </div>
                       </div>
                       <div className="flex gap-4">
                         <button
-                          className="btn btn-danger w-full"
-                          onClick={() => denyAction(tutor._id)}
+                          className=" w-full hover:bg-red-600 hover:text-white rounded-full"
+                          onClick={() => denyAction(tutor._id, denialReasons)}
                         >
                           Deny
                         </button>
                         <button
-                          className="btn btn-light w-full"
+                          className=" w-full hover:bg-blue-500 hover:text-white rounded-full"
                           onClick={() => setOpen(false)}
                         >
                           Cancel
@@ -363,7 +380,9 @@ const TutorProfileMgt = ({ match }) => {
                   {/* Overlay for blacklisted tutors */}
                   {showOverlay && (
                     <div className="overlay bg-black bg-opacity-50">
-                      <p className="blacklisted-text text-red-700 text-3xl">Blacklisted</p>
+                      <p className="blacklisted-text text-red-700 text-3xl">
+                        Blacklisted
+                      </p>
                     </div>
                   )}
                   {/* <div className=" w-full bg-cyan-300 h-[30%] mt-3 rounded-lg">
