@@ -5,6 +5,7 @@ import {
   FaEnvelope,
   FaRegBell,
   FaSearch,
+  FaTimes,
   FaTrash,
 } from "react-icons/fa";
 import Breadcrumb from "../../components/Breadcrumb";
@@ -14,10 +15,12 @@ import { FaFilePdf, FaX } from "react-icons/fa6";
 import "react-toastify/dist/ReactToastify.css";
 import { showToast } from "../../components/toastUtils";
 import DenyModal from "../../components/DenyModal";
+import BlacklistModal from "../../components/BlacklistModal";
 import { toBeRequired } from "@testing-library/jest-dom/matchers";
 
 const TutorProfileMgt = ({ match }) => {
-  const [open, setOpen] = useState(false);
+  const [openDeny, setOpenDeny] = useState(false);
+  const [openBlacklist, setOpenBlacklist] = useState(false);
   const [tutor, setTutor] = useState(null);
   const [rank, setRank] = useState(() => {
     const storedRank = localStorage.getItem("rank");
@@ -35,7 +38,6 @@ const TutorProfileMgt = ({ match }) => {
   const [denialReasons, setDenialReasons] = useState({
     credentialsError: false,
     missingAttachment: false,
-    lowGrade: false,
   });
 
   // State to track if the tutor is blacklisted
@@ -103,9 +105,9 @@ const TutorProfileMgt = ({ match }) => {
   };
 
   // Function to deny action for a tutor
-  const denyAction = async (id, denialReasons) => {
+  const blacklistAction = async (id, denialReasons) => {
     try {
-      await axios.put(`/api/tutor/tutor-requests/${id}/deny`, {
+      await axios.put(`/api/tutor/tutor-requests/${id}/blacklist`, {
         denialReasons,
       });
       // Update the local state if the backend operation is successful
@@ -132,6 +134,34 @@ const TutorProfileMgt = ({ match }) => {
     }
   };
 
+  const denyAction = async (id, denialReasons) => {
+    try {
+      await axios.put(`/api/tutor/tutor-requests/${id}/deny`, {
+        denialReasons,
+      });
+      // Update the local state if the backend operation is successful
+      console.log(denialReasons);
+      const updatedRequests = tutor.map((tutor) => {
+        if (tutor._id === id) {
+          return { ...tutor, status: "Blacklisted", denialReasons };
+        }
+        return tutor;
+        showToast("Tutor Request is Denied insideeeeee", "info");
+      });
+      setTutor(updatedRequests);
+      showToast("Tutor Request is Balcklisted", "info");
+      // // Close the modal
+      // setOpen(true);
+      // Set the tutor as blacklisted
+      // setIsBlacklisted(true);
+
+      // // Show the overlay
+      // setShowOverlay(true);
+    } catch (error) {
+      console.error("Error denying action:", error);
+      showToast("Error denying tutor request", "error");
+    }
+  };
   useEffect(() => {
     // Check local storage if the tutor is blacklisted
     const isBlacklistedFromStorage = localStorage.getItem("isBlacklisted");
@@ -293,22 +323,32 @@ const TutorProfileMgt = ({ match }) => {
                     </button>
                     <button
                       // onClick={() => denyAction(tutor._id)}
-                      onClick={() => setOpen(true)}
+                      onClick={() => setOpenDeny(true)}
                       className="ml-2 p-2 rounded-xl border border-red-500 hover:bg-red-500 hover:text-white text-black "
                     >
                       Deny
                     </button>
+                    <button
+                      // onClick={() => denyAction(tutor._id)}
+                      onClick={() => setOpenBlacklist(true)}
+                      className="ml-2 p-2 rounded-xl border border-cyan-500 hover:bg-cyan-500 hover:text-white text-black "
+                    >
+                      Blacklist
+                    </button>
                   </div>
-                  <DenyModal open={open} onClose={() => setOpen(false)}>
+                  <BlacklistModal
+                    open={openBlacklist}
+                    onClose={() => setOpenBlacklist(false)}
+                  >
                     <div className="text-center w-56">
-                      <FaTrash size={56} className="mx-auto text-red-500" />
+                      <FaTrash size={56} className="mx-auto text-cyan-500" />
                       <div className="mx-auto my-4 w-48">
                         <h3 className="text-lg font-black text-gray-800">
-                          Deny Tutor
+                          Blacklist Tutor
                         </h3>
-                        <p className=" text-gray-500">
-                          Enter reason for not accepting{" "}
-                          <span className="text-md text-red-600 ">
+                        <p className="text-gray-500">
+                          Enter reasons for blacklisting{" "}
+                          <span className="text-md text-cyan-600 ">
                             {tutor.firstName}
                           </span>
                         </p>
@@ -317,7 +357,7 @@ const TutorProfileMgt = ({ match }) => {
                         <div className="flex items-center ml-3">
                           <input
                             type="checkbox"
-                            id="credentialsError" // Set id to the specific reason
+                            id="credentialsError"
                             value="credentialsError"
                             checked={denialReasons.credentialsError}
                             onChange={(e) =>
@@ -344,33 +384,152 @@ const TutorProfileMgt = ({ match }) => {
                           />
                           <label className="ml-3">Missing Attachment</label>
                         </div>
-                        <div className="flex items-center ml-3">
-                          <input
-                            type="checkbox"
-                            id="lowGrade"
-                            value="lowGrade"
-                            checked={denialReasons.lowGrade}
+                        <div className="my-4">
+                          <label className="text-sm font-light">
+                            Additional Reasons:
+                          </label>
+                          <textarea
+                            name="additionalReasons"
+                            value={denialReasons.additionalReasons}
                             onChange={(e) =>
                               setDenialReasons((prev) => ({
                                 ...prev,
-                                lowGrade: e.target.checked,
+                                additionalReasons: e.target.value,
                               }))
-
                             }
+                            className="w-full mt-3 text-md font-light rounded-xl border border-cyan-900"
                           />
-                          <label className="ml-3">Low Grade</label>
                         </div>
                       </div>
                       <div className="flex gap-4">
                         <button
-                          className=" w-full hover:bg-red-600 hover:text-white rounded-full"
+                          className="w-full h-10px border hover:border-cyan-600 rounded-full"
+                          onClick={() => {
+                            if (
+                              Object.values(denialReasons).some(
+                                (reason) => reason
+                              )
+                            ) {
+                              blacklistAction(tutor._id, denialReasons);
+                            } else {
+                              alert("Please select at least one reason.");
+                            }
+                          }}
+                        >
+                          Blacklist
+                        </button>
+                        <button
+                          className="w-full hover:bg-blue-500 hover:text-white rounded-full"
+                          onClick={() => setOpenBlacklist(false)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </BlacklistModal>
+                  
+                  <DenyModal open={openDeny} onClose={() => setOpenDeny(false)}>
+                    <div className="text-center w-56">
+                      <FaTimes size={56} className="mx-auto text-red-500" />
+                      <div className="mx-auto my-4 w-48">
+                        <h3 className="text-lg font-black text-gray-800">
+                          Deny Tutor
+                        </h3>
+                        <p className="text-gray-500">
+                          Enter reason for denying{" "}
+                          <span className="text-md text-red-600 ">
+                            {tutor.firstName}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="flex flex-col space-y-2">
+                        <div className="flex items-center ml-3">
+                          <input
+                            type="checkbox"
+                            id="fraudulent"
+                            value="fraudulent"
+                            checked={denialReasons.fraudulent}
+                            onChange={(e) =>
+                              setDenialReasons((prev) => ({
+                                ...prev,
+                                fraudulent: e.target.checked,
+                              }))
+                            }
+                          />
+                          <label className="ml-3">Fraudulent Activity</label>
+                        </div>
+                        <div className="flex items-center ml-3">
+                          <input
+                            type="checkbox"
+                            id="lowPerformance"
+                            value="lowPerformance"
+                            checked={denialReasons.lowPerformance}
+                            onChange={(e) =>
+                              setDenialReasons((prev) => ({
+                                ...prev,
+                                lowPerformance: e.target.checked,
+                              }))
+                            }
+                          />
+                          <label className="ml-3">Low Performance</label>
+                        </div>
+                        <div className="flex items-center ml-3">
+                          <input
+                            type="checkbox"
+                            id="violationOfPolicies"
+                            value="violationOfPolicies"
+                            checked={denialReasons.violationOfPolicies}
+                            onChange={(e) =>
+                              setDenialReasons((prev) => ({
+                                ...prev,
+                                violationOfPolicies: e.target.checked,
+                              }))
+                            }
+                          />
+                          <label className="ml-3">Violation of Policies</label>
+                        </div>
+                        <div className="flex items-center ml-3">
+                          <input
+                            type="checkbox"
+                            id="plagiarism"
+                            value="plagiarism"
+                            checked={denialReasons.plagiarism}
+                            onChange={(e) =>
+                              setDenialReasons((prev) => ({
+                                ...prev,
+                                plagiarism: e.target.checked,
+                              }))
+                            }
+                          />
+                          <label className="ml-3">Plagiarism</label>
+                        </div>
+                      </div>
+                      <div className="my-4">
+                        <label className="text-sm font-light">
+                          Additional Reasons:
+                        </label>
+                        <textarea
+                          name="additionalReasons"
+                          value={denialReasons.additionalReasons}
+                          onChange={(e) =>
+                            setDenialReasons((prev) => ({
+                              ...prev,
+                              additionalReasons: e.target.value,
+                            }))
+                          }
+                          className="w-full mt-3 text-md font-light rounded-xl border border-cyan-900"
+                        />
+                      </div>
+                      <div className="flex gap-4">
+                        <button
+                          className="w-full border hover:border-red-600 rounded-full"
                           onClick={() => denyAction(tutor._id, denialReasons)}
                         >
                           Deny
                         </button>
                         <button
-                          className=" w-full hover:bg-blue-500 hover:text-white rounded-full"
-                          onClick={() => setOpen(false)}
+                          className="w-full hover:bg-blue-500 hover:text-white rounded-full"
+                          onClick={() => setOpenDeny(false)}
                         >
                           Cancel
                         </button>
@@ -378,13 +537,13 @@ const TutorProfileMgt = ({ match }) => {
                     </div>
                   </DenyModal>
                   {/* Overlay for blacklisted tutors */}
-                  {showOverlay && (
+                  {/* {showOverlay && (
                     <div className="overlay bg-black bg-opacity-50">
                       <p className="blacklisted-text text-red-700 text-3xl">
                         Blacklisted
                       </p>
                     </div>
-                  )}
+                  )} */}
                   {/* <div className=" w-full bg-cyan-300 h-[30%] mt-3 rounded-lg">
                   row 2
                 </div> */}

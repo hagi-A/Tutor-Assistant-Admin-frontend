@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { FaChevronLeft, FaChevronRight, FaRegCalendarAlt, FaRegChartBar, FaRegSun, FaStickyNote, FaTachometerAlt, FaWrench } from 'react-icons/fa'
+import { FaChevronLeft, FaChevronRight, FaRegCalendarAlt, FaRegChartBar, FaRegSun, FaStickyNote, FaTachometerAlt, FaUsers, FaWrench } from 'react-icons/fa'
 
 const SupSidebar = () => {
   return (
@@ -43,8 +43,24 @@ const SupSidebar = () => {
           <div className="flex items-center gap-[10px]">
             <FaRegChartBar className="text-white " />
 
-            <Link className="text-md leading-[20px] font-light text-white">
-              Charts
+            <Link
+              to="/allCourses"
+              className="text-md leading-[20px] font-light text-white"
+            >
+              Courses
+            </Link>
+          </div>
+          <FaChevronRight className="text-white" />
+        </div>
+        <div className="flex items-center justify-between gap-[10px] py-[15px] cursor-pointer">
+          <div className="flex items-center gap-[10px]">
+            <FaUsers className="text-white " />
+
+            <Link
+              to="/tutors"
+              className="text-md leading-[20px] font-light text-white"
+            >
+              Tutors
             </Link>
           </div>
           <FaChevronRight className="text-white" />

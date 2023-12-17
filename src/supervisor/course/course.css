@@ -1,0 +1,22 @@
+.container{
+    background-color: #fff;
+    width: 95%;
+    min-width: 420px;
+    padding: 35px 50px;
+    transform: translate(-50%, -50%);
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border-radius:10px;
+    box-shadow: 20px 30px 35px rgba(0, 0, 0, 15)
+}
+form{
+    width: 100%;
+    position: relative;
+    margin: 30px auto0 auto;
+}
+.row{
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px,1fr));
+}
