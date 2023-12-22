@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import SupPie from "./SupPie";
 import { Progress } from 'antd';
-import TutorTable from "../components/TutorTable";
+// import TutorTable from "../components/TutorTable";
 
 
 const data = [

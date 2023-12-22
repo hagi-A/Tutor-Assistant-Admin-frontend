@@ -314,7 +314,7 @@ const TutorProfileMgt = ({ match }) => {
                       </button>
                     </div> */}
                   </div>
-                  <div className="flex mt-7 ml-36 gap-4">
+                  <div className="flex mt-7 ml-20 gap-4">
                     <button
                       onClick={() => acceptAction(tutor._id)}
                       className="p-2 rounded-xl border border-green-500 hover:bg-green-500 hover:text-white text-black "
@@ -427,7 +427,7 @@ const TutorProfileMgt = ({ match }) => {
                       </div>
                     </div>
                   </BlacklistModal>
-                  
+
                   <DenyModal open={openDeny} onClose={() => setOpenDeny(false)}>
                     <div className="text-center w-56">
                       <FaTimes size={56} className="mx-auto text-red-500" />
@@ -553,52 +553,64 @@ const TutorProfileMgt = ({ match }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 m-7 p-7">
                       {/* Display additional details */}
                       <div>
-                        <label className="text-xl font-light ">Email:</label>
-                        <input
-                          id="email"
-                          value={tutor.email}
-                          className="w-full h-[40px] mt-3 text-lg font-light rounded-xl border border-cyan-900 "
-                        />
+                        <label className="text-xl font-semibold ">Email:</label>
+                        <label className="w-full ml-7 h-[40px] mt-3 text-lg font-light ">
+                          {tutor.email}
+                        </label>
                       </div>
                       <div>
-                        <label className="text-xl font-light">
+                        <label className="text-xl font-semibold ">Age:</label>
+                        <label className="w-full ml-7 h-[40px] mt-3 text-lg font-light ">
+                          {tutor.age}
+                        </label>
+                      </div>
+                      <div className="mt-6">
+                        <label className="text-xl mt-5 font-semibold ">
+                          Gender:
+                        </label>
+                        <label className="w-full ml-7 h-[40px] mt-3 text-lg font-light ">
+                          {tutor.gender}
+                        </label>
+                      </div>
+                      <div className="mt-6">
+                        <label className="text-xl mt-5 font-semibold">
                           Profession:
                         </label>
-                        <input
-                          id="profession"
-                          value={tutor.profession}
-                          className="w-full h-[40px] mt-3 text-lg font-light rounded-xl border border-cyan-900 "
-                        />
+                        <label className="w-full ml-7 h-[40px] mt-3 text-lg font-light ">
+                          {tutor.profession}
+                        </label>
                       </div>
                       <div className="mt-6">
-                        <label className="text-xl mt-5 font-light">
+                        <label className="text-xl mt-5 font-semibold">
                           Location:
                         </label>
-                        <input
-                          id="location"
-                          value={tutor.location}
-                          className="w-full h-[40px] mt-3 text-lg font-light rounded-xl border border-cyan-900 "
-                        />
+                        <label className="w-full ml-7 h-[40px] mt-3 text-lg font-light ">
+                          {tutor.location}
+                        </label>
                       </div>
                       <div className="mt-6">
-                        <label className="text-xl font-light">
+                        <label className="text-xl font-semibold">
                           Phone Number:
                         </label>
-                        <input
-                          id="phoneNumber"
-                          value={tutor.phoneNumber}
-                          className="w-full h-[40px] mt-3 text-lg font-light rounded-xl border border-cyan-900 "
-                        />
+                        <label className="w-full ml-7 h-[40px] mt-3 text-lg font-light ">
+                          {tutor.phoneNumber}
+                        </label>
                       </div>
                       <div className="mt-6">
-                        <label className="text-xl font-light">
+                        <label className="text-xl font-semibold">
                           Major Taken:
                         </label>
-                        <input
-                          id="majorTaken"
-                          value={tutor.majorTaken}
-                          className="w-full h-[40px] mt-3 text-lg font-light rounded-xl border border-cyan-900 "
-                        />
+                        <label className="w-full ml-7 h-[40px] mt-3 text-lg font-light ">
+                          {tutor.profession}
+                        </label>
+                      </div>
+                      <div className="mt-6">
+                        <label className="text-xl font-semibold">
+                          Selected Courses:
+                        </label>
+                        <label className="w-full ml-7 h-[40px] mt-3 text-lg font-light ">
+                          {tutor.courses}
+                        </label>
                       </div>
                       {/* <div className="mt-6">
                         <label className="text-xl font-light">
@@ -610,8 +622,8 @@ const TutorProfileMgt = ({ match }) => {
                           className="w-full h-[40px] mt-3  text-lg font-light rounded-xl border border-cyan-900 "
                         />
                       </div> */}
-                      <div className="flex flex-row m-3 gap-4 mt-6">
-                        <label className="text-xl font-light">CV:</label>
+                      <div className="flex flex-row gap-4 mt-6">
+                        <label className="text-xl font-semibold">CV:</label>
                         {/* Display the CV here */}
                         {/* <embed
                           src={`http://localhost:9999/api/files/images/${tutor.selectedCVs}`}
@@ -633,7 +645,7 @@ const TutorProfileMgt = ({ match }) => {
                       </div>
 
                       <div className="mt-6">
-                        <label htmlFor="rank" className="text-xl font-light">
+                        <label htmlFor="rank" className="text-xl font-semibold">
                           Rank:
                         </label>
                         <div className="mt-3 space-x-4">
@@ -657,7 +669,7 @@ const TutorProfileMgt = ({ match }) => {
                         </div>
                       </div>
                       <div className="mt-6">
-                        <label className="text-xl font-light">
+                        <label className="text-xl font-semibold">
                           Tutoring Grade Level:
                         </label>
 

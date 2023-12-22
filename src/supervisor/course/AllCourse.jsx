@@ -108,7 +108,7 @@ const Courses = () => {
                     courses.map((course) => (
                       <div
                         key={course._id}
-                        className="card lg:w-1/4 w-full p-8 justify-center transition duration-300"
+                        className=" lg:w-1/4 w-full p-8 justify-center transition duration-300"
                       >
                         <div className="p-4 border rounded-lg bg-slate-50 hover:border-cyan-600">
                           <div className="flex justify-between mb-4">
