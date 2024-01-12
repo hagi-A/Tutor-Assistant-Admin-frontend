@@ -7,6 +7,8 @@ import Breadcrumb from "../../components/Breadcrumb";
 import { IoIosAddCircleOutline } from "react-icons/io";
 // import { useTutorContext } from "../../../hooks/useTutorContext";
 import './tutor.css';
+import StarRating from "../../components/StarRating";
+import Dashboard from "../../components/Dashboard";
 const Tutor = () => {
   const [tutors, setTutors] = useState([]);
   const [notificationCount, setNotificationCount] = useState(0);
@@ -14,7 +16,7 @@ const Tutor = () => {
   // const tutorId = "123456";
   const fetchTutors = async () => {
     try {
-      const response = await axios.get("/getTutors");
+      const response = await axios.get("/api/supervisor/getAcceptedTutors");
       setTutors(response.data);
     } catch (error) {
       console.error("Error fetching tutors:", error);
@@ -93,47 +95,7 @@ const Tutor = () => {
         <SupSidebar />
       </div>
       <div className="basis-[88%] border h-[100vh] overflow-scroll">
-        <div className="flex items-center justify-between h-[70px] shadow-lg px-6">
-          <div className="flex items-center rounded-sm ">
-            <input
-              type="text"
-              className="bg-white h-10 border border-cyan-500 outline-none pl-3 w-[350px] rounded-md placeholder:text-sm leading-5 font-normal"
-              placeholder="Search for ..."
-            />
-            <div className="bg-cyan-500 h-10 px-3 flex items-center justify-center cursor-pointer rounded-tr-[5px] rounded-br-[5px]">
-              <FaSearch color="white" />
-            </div>
-          </div>
-          <div className="flex items-center gap-4 relative">
-            <div className="flex items-center gap-6 border-r-2 border-cyan-900 pr-6">
-              <FaRegBell />
-              <FaEnvelope />
-            </div>
-
-            {/* {tutor && ( */}
-            <div className="flex items-center gap-4 relative">
-              <p>
-                Hareg Alemu
-                {/* {tutor.tutor.firstName} {tutor.tutor.lastName} */}
-              </p>
-              <div className="h-[50px] w-[50px] rounded-full bg-cyan-800 cursor-pointer flex items-center justify-center relative ">
-                <button>
-                  <Link to="/profilePage">
-                    <div>
-                      <img
-                        // src=""
-                        // src={`http://localhost:9999/api/files/images/${tutor.tutor.selectedImages}`}
-                        // alt={tutor.tutor.firstName}
-                        className="h-[50px] w-[50px] rounded-full bg-cyan-800 cursor-pointer flex items-center justify-center relative "
-                      />
-                    </div>
-                  </Link>
-                </button>
-              </div>
-            </div>
-            {/* )} */}
-          </div>
-        </div>
+        <Dashboard />
         <div className="pt-6 px-6 min-h-screen bg-slate-200 ">
           <div className="flex justify-between">
             <Breadcrumb pageName="Tutors" />
@@ -195,7 +157,11 @@ const Tutor = () => {
                                   tutor.sentRequest ? (
                                     <div
                                       key={tutor._id}
-                                      className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center"
+                                      className={`absolute -top-1 -right-1 ${
+                                        tutor.status === "Accepted"
+                                          ? "bg-green-500" // Use a green color for accepted tutors
+                                          : "bg-red-500" // Use a different color for other statuses
+                                      } text-white rounded-full w-4 h-4 flex items-center justify-center`}
                                     >
                                       {tutor.notificationCount > 0 &&
                                         tutor.notificationCount}
@@ -205,9 +171,13 @@ const Tutor = () => {
                               </div>
                             </h4>
                           </div>
+                          <div className="flex justify-between">
                           <p className="text-sm lg:text-base">
                             {tutor.profession}
                           </p>
+                          {/* Display the stars based on the tutor's rank */}
+                          <StarRating rank={tutor.rank} />
+                          </div>
                           <button className="bg-cyan-500 text-white rounded-lg w-full h-10 mt-4 cursor-pointer transition duration-300 hover:bg-transparent border hover:text-cyan-500 hover:border-cyan-200">
                             <Link to={""}>View Tutor</Link>
                           </button>

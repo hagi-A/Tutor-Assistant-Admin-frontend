@@ -7,51 +7,40 @@ import adminLogin from "../images/adminLogin.jpg"
 const AdminLogin = () => {
     const navigate = useNavigate();
   const [username, setUserName] = useState("");
-  const [email, setEmail] = useState("");
+  // const [selectedRole, setSelectedRole] = useState("");
   const [password, setPassword] = useState("");
   const { login, error, isLoading } = useLogin();
-  const { user } = useAuthContext();
+  const { admin } = useAuthContext();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      await login(username, email, password)
+      await login(username, password);
      
-        const response = await fetch('/api/user/Adminlogin', {
-          method: 'POST',
+        const response = await fetch("/api/adminAuth/adminlogin", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({ username, email, password }),
+          body: JSON.stringify({ username, password }),
         });
         const data = await response.json();
     
         const token = data.token;
         localStorage.setItem("token", token);
         const role = data.selectedRole;
-        // console.log(data)
-        
-        // if (role === "Parent") {
-        //   navigate("/parent");
-          
-        // } 
+      console.log(data);
+      console.log("Role:", role);
+      
         if (role === "Admin") {
-          navigate("/");
+          navigate("/adminPage");
           console.log(data);
         }  
-        // else if (role === "Tutor") {
-        //   navigate("/tutorRegistration");
-         
-        // } else if (role === "Student") {
-        //   console.log("tt isin");
-        //   navigate("/student");
-          
-        // } 
+        
         else if (role === "Supervisor") {
-          
-          navigate("/supervisor");
-          
+          navigate("/supervisorDashboard");
+          console.log(data);
         } 
         } catch (error) {
           console.error(error);
@@ -83,7 +72,7 @@ const AdminLogin = () => {
               className="w-full p-2 border border-violet-400 rounded-md placeholder:font-light placeholder:text-gray-500"
             />
           </div>
-          <div className="py-4">
+          {/* <div className="py-4">
             <label>
               <span className="mb-2 text-md font-light">Email: </span>
             </label>
@@ -93,7 +82,7 @@ const AdminLogin = () => {
               value={email}
               className="w-full p-2 border border-violet-400 rounded-md placeholder:font-light placeholder:text-gray-500"
             />
-          </div>
+          </div> */}
           <div className="py-4">
             <label>
               <span className="mb-2 text-md font-light">Password:</span>
@@ -104,7 +93,8 @@ const AdminLogin = () => {
               value={password}
               className="w-full p-2 border  border-violet-400 rounded-md placeholder:font-light placeholder:text-gray-500"
             />
-          </div>
+            </div>
+            
           {/* <div class="flex justify-between w-full py-4">
             <span class="font-bold text-md">Forgot password</span>
           </div> */}
@@ -115,7 +105,7 @@ const AdminLogin = () => {
           >
             Login
           </button>
-          {error && <div className="error">{error}</div>}
+          {error && <div className="text-red-500 border border-red-500 rounded-lg p-4 m-4">{error}</div>}
         
         </form>
        {/* right side */}

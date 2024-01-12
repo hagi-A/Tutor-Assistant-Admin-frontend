@@ -3,6 +3,7 @@ import SupSidebar from './SupSidebar'
 import DashboardSup from './DashboardSup'
 import {Outlet} from 'react-router-dom'
 import SupMain from './SupMain'
+import Dashboard from '../../components/Dashboard'
 
 const SupervisorPage = () => {
   return (
@@ -11,7 +12,7 @@ const SupervisorPage = () => {
         <SupSidebar />
      </div>
      <div className="basis-[88%] border h-[100vh] overflow-scroll">
-        <DashboardSup />
+        <Dashboard />
         <div>
           <Outlet>
               

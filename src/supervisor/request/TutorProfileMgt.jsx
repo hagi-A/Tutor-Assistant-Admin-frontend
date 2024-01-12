@@ -11,12 +11,13 @@ import {
 import Breadcrumb from "../../components/Breadcrumb";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { FaFilePdf, FaX } from "react-icons/fa6";
+import { FaFilePdf, FaTentArrowLeftRight, FaX } from "react-icons/fa6";
 import "react-toastify/dist/ReactToastify.css";
 import { showToast } from "../../components/toastUtils";
 import DenyModal from "../../components/DenyModal";
 import BlacklistModal from "../../components/BlacklistModal";
 import { toBeRequired } from "@testing-library/jest-dom/matchers";
+import Dashboard from "../../components/Dashboard";
 
 const TutorProfileMgt = ({ match }) => {
   const [openDeny, setOpenDeny] = useState(false);
@@ -28,11 +29,19 @@ const TutorProfileMgt = ({ match }) => {
   });
   const { id } = useParams(); // Access the tutorId parameter from the URL
   const gradeLevel = [
-    "Kindergarten",
-    "Elementary",
-    "Middle School",
-    "High School",
-    "College",
+    "G1",
+    "G2",
+    "G3",
+    "G4",
+    "G5",
+    "G6",
+    "G7",
+    "G8",
+    "G9",
+    "G10",
+    "G11",
+    "G12",
+    "Collage",
   ];
   const [updatedGradeLevels, setUpdatedGradeLevels] = useState([]);
   const [denialReasons, setDenialReasons] = useState({
@@ -97,11 +106,11 @@ const TutorProfileMgt = ({ match }) => {
         return tutor;
       });
       setTutor(updatedRequests);
-      showToast("Tutor Request is Accepted Successfully", "success");
-      showToast("Email is Sent", "info");
     } catch (error) {
       console.error("Error accepting action:", error);
     }
+    alert("Tutor Request is Accepted Successfully");
+    alert("Email is Sent");
   };
 
   // Function to deny action for a tutor
@@ -114,13 +123,12 @@ const TutorProfileMgt = ({ match }) => {
       console.log(denialReasons);
       const updatedRequests = tutor.map((tutor) => {
         if (tutor._id === id) {
-          return { ...tutor, status: "Denied", denialReasons };
+          return { ...tutor, status: "Blacklisted", denialReasons };
         }
         return tutor;
-        showToast("Tutor Request is Denied insideeeeee", "info");
+        // alert("Tutor Request is Denied insideeeeee", "info");
       });
       setTutor(updatedRequests);
-      showToast("Tutor Request is Denied", "info");
       // // Close the modal
       // setOpen(true);
       // Set the tutor as blacklisted
@@ -130,8 +138,10 @@ const TutorProfileMgt = ({ match }) => {
       // setShowOverlay(true);
     } catch (error) {
       console.error("Error denying action:", error);
-      showToast("Error denying tutor request", "error");
+      alert("Error denying tutor request", "error");
     }
+
+    alert("Tutor Request is Blacklisted");
   };
 
   const denyAction = async (id, denialReasons) => {
@@ -143,23 +153,22 @@ const TutorProfileMgt = ({ match }) => {
       console.log(denialReasons);
       const updatedRequests = tutor.map((tutor) => {
         if (tutor._id === id) {
-          return { ...tutor, status: "Blacklisted", denialReasons };
+          return { ...tutor, status: "Denied", denialReasons };
         }
         return tutor;
-        showToast("Tutor Request is Denied insideeeeee", "info");
       });
       setTutor(updatedRequests);
-      showToast("Tutor Request is Balcklisted", "info");
+      FaTentArrowLeftRight("Tutor Request is Balcklisted", "info");
       // // Close the modal
       // setOpen(true);
       // Set the tutor as blacklisted
       // setIsBlacklisted(true);
-
+      alert("Tutor Request is Denied insideeeeee");
       // // Show the overlay
       // setShowOverlay(true);
     } catch (error) {
       console.error("Error denying action:", error);
-      showToast("Error denying tutor request", "error");
+      alert("Error denying tutor request");
     }
   };
   useEffect(() => {
@@ -208,11 +217,11 @@ const TutorProfileMgt = ({ match }) => {
           body: JSON.stringify({ rank, gradeLevel: updatedGradeLevels }),
         }
       );
-      
+
       if (response.ok) {
         // Handle successful update
         console.log("Rank and gradeLevels updated successfully");
-        showToast("Tutor Profile is Updated Successfully", "success");
+        alert("Tutor Profile is Updated Successfully", "success");
       } else {
         // Handle error
         console.error("Failed to update rank and gradeLevels");
@@ -220,7 +229,7 @@ const TutorProfileMgt = ({ match }) => {
     } catch (error) {
       console.error("Error updating rank and gradeLevels:", error);
 
-      showToast("Tutor Profile is not Updated ", "error");
+      alert("Tutor Profile is not Updated ", "error");
     }
   };
   // const handleGradeLevelChange = async (event) => {
@@ -265,30 +274,7 @@ const TutorProfileMgt = ({ match }) => {
           <SupSidebar />
         </div>
         <div className="basis-[88%] border h-[100vh] overflow-scroll">
-          <div className="flex items-center justify-between h-[70px] shadow-lg px-6">
-            <div className="flex items-center rounded-sm ">
-              <input
-                type="text"
-                className="bg-white h-10 border border-cyan-500 outline-none pl-3 w-[350px] rounded-md placeholder:text-sm leading-5 font-normal"
-                placeholder="Search for ..."
-              />
-              <div className="bg-cyan-500 h-10 px-3 flex items-center justify-center cursor-pointer rounded-tr-[5px] rounded-br-[5px]">
-                <FaSearch color="white" />
-              </div>
-            </div>
-            <div className="flex items-center gap-4 relative">
-              <div className="flex items-center gap-6 border-r-2 pr-6">
-                <FaRegBell />
-                <FaEnvelope />
-              </div>
-              <div className="flex items-center gap-4 relative">
-                <p>Hareg Alemu</p>
-                <div className="h-[50px] w-[50px] rounded-full bg-cyan-800 cursor-pointer flex items-center justify-center relative ">
-                  <img src="" alt="" />
-                </div>
-              </div>
-            </div>
-          </div>
+          <Dashboard />
           <div className="pt-6 px-6 min-h-screen bg-slate-200 ">
             <Breadcrumb pageName="Tutor Profile" />
             {tutor && (
@@ -609,7 +595,7 @@ const TutorProfileMgt = ({ match }) => {
                           Selected Courses:
                         </label>
                         <label className="w-full ml-7 h-[40px] mt-3 text-lg font-light ">
-                          {tutor.courses}
+                          {tutor.courses}{" "}
                         </label>
                       </div>
                       {/* <div className="mt-6">
@@ -672,28 +658,29 @@ const TutorProfileMgt = ({ match }) => {
                         <label className="text-xl font-semibold">
                           Tutoring Grade Level:
                         </label>
-
-                        {gradeLevel.map((level) => (
-                          <div key={level} className="flex mt-3 items-center">
-                            <input
-                              type="checkbox"
-                              id={level}
-                              value={level}
-                              checked={
-                                tutor &&
-                                tutor.gradeLevel &&
-                                tutor.gradeLevel.includes(level)
-                              }
-                              onChange={handleGradeLevelChange}
-                            />
-                            <label
-                              htmlFor={level}
-                              className="grid grid-cols-2 text-lg font-light ml-2 "
-                            >
-                              {level}
-                            </label>
-                          </div>
-                        ))}
+                        <div className="flex flex-wrap flex-row">
+                          {gradeLevel.map((level) => (
+                            <div key={level} className="flex mt-3 items-center">
+                              <input
+                                type="checkbox"
+                                id={level}
+                                value={level}
+                                checked={
+                                  tutor &&
+                                  tutor.gradeLevel &&
+                                  tutor.gradeLevel.includes(level)
+                                }
+                                onChange={handleGradeLevelChange}
+                              />
+                              <label
+                                htmlFor={level}
+                                className="grid grid-cols-2 text-lg font-light ml-2 "
+                              >
+                                {level}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                     <div className="flex justify-center mb-6">
