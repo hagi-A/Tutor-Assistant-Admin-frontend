@@ -1,32 +1,32 @@
 import React, { useState, useEffect } from "react";
-import { useAuthContext } from '../hooks/useAuthContext';
+import { useAuthContext } from "../hooks/useAuthContext";
 import { FaEnvelope, FaRegBell, FaSearch } from "react-icons/fa";
 import axios from "axios";
 
-
 const Dashboard = () => {
-    const { admin } = useAuthContext();
-    const [newNotifications, setNewNotifications] = useState(0);
+  const { admin } = useAuthContext();
+  const [newNotifications, setNewNotifications] = useState(0);
 
-    useEffect(() => {
-      const intervalId = setInterval(() => {
-        // Poll the server to check for new notifications
-        checkNotifications();
-      }, 5000);
+  // const adminn = admin && admin.admin ? admin.admin : null;
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      // Poll the server to check for new notifications
+      checkNotifications();
+    }, 5000);
 
-      // Clear the interval when the component unmounts
-      return () => clearInterval(intervalId);
-    }, []);
+    // Clear the interval when the component unmounts
+    return () => clearInterval(intervalId);
+  }, []);
 
-    const checkNotifications = async () => {
-      try {
-        // Make an API call to check for new notifications
-        const response = await axios.get("/api/supervisor/notifications");
-        setNewNotifications(response.data.newNotifications);
-      } catch (error) {
-        console.error("Error checking notifications:", error);
-      }
-    };
+  const checkNotifications = async () => {
+    try {
+      // Make an API call to check for new notifications
+      const response = await axios.get("/api/supervisor/notifications");
+      setNewNotifications(response.data.newNotifications);
+    } catch (error) {
+      console.error("Error checking notifications:", error);
+    }
+  };
 
   return (
     <div className="flex items-center justify-between h-[70px] shadow-lg px-6">
@@ -53,14 +53,20 @@ const Dashboard = () => {
           <FaEnvelope />
         </div>
         <div className="flex items-center gap-4 relative">
-                  <p>{admin.admin.firstName}{" "} {admin.admin.lastName}</p>
-          <div className="h-[50px] w-[50px] rounded-full bg-cyan-800 cursor-pointer flex items-center justify-center relative ">
-            <img src="" alt="" />
-          </div>
+          {admin && (
+            <>
+              <p>
+                {admin.admin.firstName} {admin.admin.lastName}
+              </p>
+              <div className="h-[50px] w-[50px] rounded-full bg-cyan-800 cursor-pointer flex items-center justify-center relative ">
+                <img src="" alt="" />
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
   );
-}
+};
 
-export default Dashboard
+export default Dashboard;

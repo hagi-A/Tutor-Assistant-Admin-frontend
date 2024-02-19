@@ -3,6 +3,7 @@ import Sidebar from './Sidebar'
 import DashboardView from './DashboardView'
 import {Outlet} from 'react-router-dom'
 import Main from './Main'
+import Dashboard from '../../components/Dashboard'
 
 const AdminPage = () => {
   return (
@@ -11,7 +12,7 @@ const AdminPage = () => {
         <Sidebar />
      </div>
      <div className="basis-[88%] border h-[100vh] overflow-scroll">
-        <DashboardView />
+        <Dashboard />
         <div>
           <Outlet>
               

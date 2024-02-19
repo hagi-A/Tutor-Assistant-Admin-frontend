@@ -172,7 +172,7 @@ const Signup = () => {
               </button> */}
               <div class="text-center text-gray-400 mb-2">
                 Already Have An Account?
-                <Link to="/login" className="font-bold text-black">
+                <Link to="/" className="font-bold text-black">
                   Log In
                 </Link>
                 {/* <span class="font-bold text-black">Sign up for free</span> */}

@@ -142,8 +142,8 @@ const Tutor = () => {
                         <div className="p-4 border rounded-lg bg-slate-50  hover:border-cyan-600">
                           <div className="flex justify-between mb-4 ">
                             <img
-                              src={`http://localhost:9999/api/files/images/${tutor.selectedImages}`}
-                              alt={tutor.firstName}
+                              // src={`http://localhost:9999/api/files/images/${tutor.selectedImages}`}
+                              // alt={tutor.firstName}
                               className="h-16 w-16 rounded-full bg-gray-500"
                             />
                             <h3 className="text-2xl lg:text-3xl font-light text-center lg:leading-9">
